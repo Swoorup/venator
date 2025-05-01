@@ -72,6 +72,22 @@ export function FilterInput(props: FilterInputProps) {
         }
     }
 
+    function onpaste(e: ClipboardEvent) {
+        e.preventDefault();
+        const text = e.clipboardData?.getData('text/plain');
+        if (text) {
+            const selection = window.getSelection();
+            if (selection && selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(text));
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+    }
+
     function getUneditableLength(p: Input[]): number {
         for (let i = 0; i < p.length; i++) {
             if (p[i].editable !== false) {
@@ -89,7 +105,8 @@ export function FilterInput(props: FilterInputProps) {
                 <span class="spacer">{'  '}</span>
             </>}
         </For>
-        <span ref={input_e} id="filter-input" class="filter-input" contenteditable="plaintext-only" onfocusout={onblur} onkeydown={onkeydown} onmousedown={onmousedown}>
+        <span ref={input_e} id="filter-input" class="filter-input" contenteditable="plaintext-only" 
+              onfocusout={onblur} onkeydown={onkeydown} onmousedown={onmousedown} onpaste={onpaste}>
             {' '}
             {localPredicates().slice(getUneditableLength(localPredicates())).map((predicate, i) => {
                 return (<>
